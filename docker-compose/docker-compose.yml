@@ -9,28 +9,23 @@ services:
       - "5431:5432"
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_USER: logicivil
-      POSTGRES_DB: parametrage
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
 
   demo-java:
-    image: demo/java
-    container_name: demo-java
+    container_name: demo-java-contenaire
     build:
-      context: ./java
-    volumes:
-      - .env:/app/.env
+      context: java/.
     depends_on:
       - demo-java-db
+    ports:
+      - 8080:8080
 
   demo-php:
-    image: demo/php
-    container_name: demo-php
-    build:
-      context: ./php
-    volumes:
-      - .env:/app/.env
-    depends_on:
-      - demo-java-db
+    image: ratife/igy-demo-php:0.1
+    container_name: demo-php-contenaire
+    
 
 volumes:
   volume_db:
+  volume_php:

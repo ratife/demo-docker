@@ -1,0 +1,1 @@
+docker stack deploy -c docker-compose.yml -d demo-igy

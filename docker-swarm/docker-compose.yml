@@ -15,10 +15,12 @@ services:
       placement:
         constraints: [node.role == manager]
 
-  database_vp:
-    image: mysql:5.7
+  demo-java-db:
+    image: postgres:14-alpine
     environment:
-      MYSQL_ROOT_PASSWORD: 123
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - ./database/mysql:/var/lib/mysql
     networks:
@@ -28,57 +30,32 @@ services:
       placement:
         constraints: [node.role == manager]
 
-  okidakLogoLoader:
-    image: tomcat:7.0.109-jdk8-corretto
+  demo-java:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
-      - ./tomcat_loader/webapps:/usr/local/tomcat/webapps
-      - ./tomcat/logs:/usr/local/tomcat/logs
-    labels:
-      - "traefik.http.routers.okidakLogoLoader.rule=Host(`loader.viewpay.ingenosya.net`)"
-      - "traefik.http.services.okidakLogoLoader.loadbalancer.server.port=8080"
-    deploy:
-      replicas: 1
-      placement:
-        constraints: [node.role == manager]
+      - ./database/mysql:/var/lib/mysql
     networks:
       - traefik_network
-
-  vp:
-    image: tomcat:7.0.109-jdk8-corretto
-    volumes:
-      - ./tomcat/webapps:/usr/local/tomcat/webapps
-
-    depends_on:
-      - database_vp
     deploy:
-      replicas: 4
+      replicas: 2
       placement:
-        constraints: [node.role == manager]
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.vp.rule=Host(`vp.viewpay.ingenosya.net`)"
-      - "traefik.http.services.vp.loadbalancer.server.port=8080"
-      - "traefik.http.routers.vp.entrypoints=web"
-      - "traefik.http.services.vp.loadbalancer.sticky=true"
-      #- "traefik.http.services.vp.loadbalancer.sticky.cookie.name=JSESSIONID"
-      - "traefik.http.services.vp.loadbalancer.sticky.cookie=true"
-      - "traefik.http.services.vp.loadbalancer.sticky.cookie.httpOnly=true"
-      - "traefik.http.services.vp.loadbalancer.sticky.cookie.secure=false"
+        constraints: [node.role == worker]
 
-    networks:
-        - traefik_network
-  cdn:
-    image: httpd:2.4
+  demo-php:
+    image: ratife/igy-demo-php:0.1
     volumes:
-      - ./cdn/web/:/usr/local/apache2/htdocs/
-    deploy:
-      replicas: 1
-      placement:
-        constraints: [node.role == manager]
+      - volume_php:/var/www/html/
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.cdn.rule=Host(`cdn.viewpay.ingenosya.net`)"
-      - "traefik.http.services.cdn.loadbalancer.server.port=80"
+      - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
+      - "traefik.http.services.demophp1.loadbalancer.server.port=81"
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [node.role == worker]
     networks:
       - traefik_network
 
