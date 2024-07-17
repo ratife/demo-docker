@@ -31,13 +31,11 @@ services:
         constraints: [node.role == manager]
 
   demo-java:
-    image: postgres:14-alpine
-    environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - ./database/mysql:/var/lib/mysql
+    container_name: demo-java-contenaire
+    build:
+      context: java/.
+    depends_on:
+      - demo-java-db
     networks:
       - traefik_network
     deploy:
@@ -47,8 +45,18 @@ services:
 
   demo-php:
     image: ratife/igy-demo-php:0.1
-    volumes:
-      - volume_php:/var/www/html/
+    labels:
+      - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
+      - "traefik.http.services.demophp1.loadbalancer.server.port=81"
+    deploy:
+      replicas: 2
+      placement:
+        constraints: [node.role == worker]
+    networks:
+      - traefik_network
+
+  demo-python:
+    image: ratife/igy-demo-python:0.1
     labels:
       - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
       - "traefik.http.services.demophp1.loadbalancer.server.port=81"
