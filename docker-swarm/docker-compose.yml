@@ -1,0 +1,87 @@
+version: "3.7"
+services:
+  traefik:
+    image: traefik:v2.10
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_network
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+  database_vp:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+    volumes:
+      - ./database/mysql:/var/lib/mysql
+    networks:
+      - traefik_network
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+  okidakLogoLoader:
+    image: tomcat:7.0.109-jdk8-corretto
+    volumes:
+      - ./tomcat_loader/webapps:/usr/local/tomcat/webapps
+      - ./tomcat/logs:/usr/local/tomcat/logs
+    labels:
+      - "traefik.http.routers.okidakLogoLoader.rule=Host(`loader.viewpay.ingenosya.net`)"
+      - "traefik.http.services.okidakLogoLoader.loadbalancer.server.port=8080"
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - traefik_network
+
+  vp:
+    image: tomcat:7.0.109-jdk8-corretto
+    volumes:
+      - ./tomcat/webapps:/usr/local/tomcat/webapps
+
+    depends_on:
+      - database_vp
+    deploy:
+      replicas: 4
+      placement:
+        constraints: [node.role == manager]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vp.rule=Host(`vp.viewpay.ingenosya.net`)"
+      - "traefik.http.services.vp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.vp.entrypoints=web"
+      - "traefik.http.services.vp.loadbalancer.sticky=true"
+      #- "traefik.http.services.vp.loadbalancer.sticky.cookie.name=JSESSIONID"
+      - "traefik.http.services.vp.loadbalancer.sticky.cookie=true"
+      - "traefik.http.services.vp.loadbalancer.sticky.cookie.httpOnly=true"
+      - "traefik.http.services.vp.loadbalancer.sticky.cookie.secure=false"
+
+    networks:
+        - traefik_network
+  cdn:
+    image: httpd:2.4
+    volumes:
+      - ./cdn/web/:/usr/local/apache2/htdocs/
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cdn.rule=Host(`cdn.viewpay.ingenosya.net`)"
+      - "traefik.http.services.cdn.loadbalancer.server.port=80"
+    networks:
+      - traefik_network
+
+networks:
+  traefik_network:
+          driver: overlay

@@ -1,0 +1,36 @@
+services:
+  demo-java-db:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    container_name: demo-java-db
+    volumes:
+      - volume_db:/var/lib/postgresql/data
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: logicivil
+      POSTGRES_DB: parametrage
+
+  demo-java:
+    image: demo/java
+    container_name: demo-java
+    build:
+      context: ./java
+    volumes:
+      - .env:/app/.env
+    depends_on:
+      - demo-java-db
+
+  demo-php:
+    image: demo/php
+    container_name: demo-php
+    build:
+      context: ./php
+    volumes:
+      - .env:/app/.env
+    depends_on:
+      - demo-java-db
+
+volumes:
+  volume_db:
