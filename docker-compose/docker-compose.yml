@@ -24,6 +24,10 @@ services:
   demo-php:
     image: ratife/igy-demo-php:0.1
     container_name: demo-php-contenaire
+
+  demo-python:
+    image: ratife/igy-demo-python:0.1
+    container_name: demo-python-contenaire
     
 
 volumes:
