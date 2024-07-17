@@ -40,7 +40,7 @@ services:
       - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
       - "traefik.http.services.demophp1.loadbalancer.server.port=81"
     deploy:
-      replicas: 2
+      replicas: 5
       placement:
         constraints: [node.role == worker]
 
@@ -50,7 +50,7 @@ services:
       - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
       - "traefik.http.services.demophp1.loadbalancer.server.port=81"
     deploy:
-      replicas: 2
+      replicas: 5
       placement:
         constraints: [node.role == worker]
     networks:
@@ -62,7 +62,7 @@ services:
       - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
       - "traefik.http.services.demophp1.loadbalancer.server.port=81"
     deploy:
-      replicas: 2
+      replicas: 5
       placement:
         constraints: [node.role == worker]
     networks:
