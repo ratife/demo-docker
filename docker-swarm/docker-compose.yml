@@ -31,13 +31,14 @@ services:
         constraints: [node.role == manager]
 
   demo-java:
-    container_name: demo-java-contenaire
-    build:
-      context: java/.
+    image: ratife/igy-demo-java:0.1
     depends_on:
       - demo-java-db
     networks:
       - traefik_network
+    labels:
+      - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
+      - "traefik.http.services.demophp1.loadbalancer.server.port=81"
     deploy:
       replicas: 2
       placement:
