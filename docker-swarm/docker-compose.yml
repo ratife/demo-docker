@@ -37,7 +37,7 @@ services:
     networks:
       - traefik_network
     labels:
-      - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
+      - "traefik.http.routers.demophp1.rule=Host(`java.ingenosya.net`)"
       - "traefik.http.services.demophp1.loadbalancer.server.port=81"
     deploy:
       replicas: 5
@@ -47,8 +47,8 @@ services:
   demo-php:
     image: ratife/igy-demo-php:0.1
     labels:
-      - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
-      - "traefik.http.services.demophp1.loadbalancer.server.port=81"
+      - "traefik.http.routers.demophp1.rule=Host(`php.ingenosya.net`)"
+      - "traefik.http.services.demophp1.loadbalancer.server.port=82"
     deploy:
       replicas: 5
       placement:
@@ -59,8 +59,8 @@ services:
   demo-python:
     image: ratife/igy-demo-python:0.1
     labels:
-      - "traefik.http.routers.demophp1.rule=Host(`loader.viewpay.ingenosya.net`)"
-      - "traefik.http.services.demophp1.loadbalancer.server.port=81"
+      - "traefik.http.routers.demophp1.rule=Host(`python.ingenosya.net`)"
+      - "traefik.http.services.demophp1.loadbalancer.server.port=83"
     deploy:
       replicas: 5
       placement:
