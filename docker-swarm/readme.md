@@ -12,5 +12,10 @@ docker stack ls
 
 ### affichage satus
 ```cmd
-docker service DEMO-IGY ls
+docker stack services DEMO-IGY
+```
+
+### supprimer deployment
+```cmd
+docker stack rm DEMO-IGY
 ```

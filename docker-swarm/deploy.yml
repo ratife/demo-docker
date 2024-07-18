@@ -13,6 +13,10 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
     networks:
       - traefik_network
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   demo-java:
     image: ratife/igy-demo-java:0.1
@@ -24,6 +28,10 @@ services:
       - "traefik.http.middlewares.java-stripprefix.stripprefix.prefixes=/api/java"
       - "traefik.http.routers.java.middlewares=java-stripprefix"
       - "traefik.http.services.java.loadbalancer.server.port=8080"
+    deploy:
+      replicas: 5
+      placement:
+        constraints: [node.role == worker]
 
   demo-php:
     image: ratife/igy-demo-php:0.1
@@ -35,6 +43,10 @@ services:
       - "traefik.http.services.php.loadbalancer.server.port=80"
     networks:
       - traefik_network
+    deploy:
+      replicas: 5
+      placement:
+        constraints: [node.role == worker]
 
   demo-python:
     image: ratife/igy-demo-python:0.1
@@ -46,7 +58,11 @@ services:
       - "traefik.http.services.python.loadbalancer.server.port=5000"
     networks:
       - traefik_network
+    deploy:
+      replicas: 5
+      placement:
+        constraints: [node.role == worker]
 
 networks:
   traefik_network:
-    driver: bridge
+    driver: overlay
