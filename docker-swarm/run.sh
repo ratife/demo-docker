@@ -1,1 +1,1 @@
-docker stack deploy --env-file .env  -c docker-compose.yml -d demo-igy
+docker stack deploy -c docker-compose.yml -d demo-igy
