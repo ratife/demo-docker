@@ -1,8 +1,17 @@
 # Command sous docker swarm
 
+### creation node master
+```cmd
+docker swarm init
+```
+### creation add node worker
+```cmd
+docker swarm join-token
+```
+
 ### deploiement
 ```cmd
-docker stack deploy -c docker-compose.yml DEMO-IGY
+docker stack deploy -c deploy.yml DEMO-IGY
 ```
 
 ### affichage deployement
